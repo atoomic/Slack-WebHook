@@ -1,0 +1,16 @@
+Build
+MYMETA.json
+MYMETA.yml
+Makefile
+_build/
+blib/
+pm_to_blib
+Replace.bs
+Replace.c
+Replace.o
+.gdb_history
+Makefile.old
+MANIFEST.bak
+/Slack-*
+.build
+private/*
