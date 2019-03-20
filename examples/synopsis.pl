@@ -1,6 +1,6 @@
 #!perl
 
-use Slack::WebHook;
+use Slack::WebHook ();
 
 my $hook = Slack::WebHook->new( 
 		url => 'https://hooks.slack.com/services/xxxx/xxxx...' 

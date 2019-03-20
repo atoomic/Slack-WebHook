@@ -220,7 +220,7 @@ sub _http_post {
 
 =head1 SYNOPSIS
 
-Slack::WebHook sample usage
+Sample usage to post slack notifications using Slack::WebHook
 
 # EXAMPLE: examples/synopsis.pl
 
@@ -238,9 +238,15 @@ Set of helpers to send slack notification with preset decorations.
 
 =head1 Available functions / methods
 
+=head2 new( [ url => "https://..." ] )
+
+This is the constructor for L<Slack::WebHook>. You should provide the C<url> for your webhook.
+You should visit the L<official Slack documentation page|https://api.slack.com/slack-apps> to create your webhook
+and get your personal URL.
+
 =head2 post( $message )
 
-The L<post> method allow you to post a single message without any preset decoration.
+The L<post> method allow you to post a single message without any preset decorations.
 The return value is the return of L<HTTP::Tiny::post_form> which is one C<Hash Ref>.
 The C<success> field will be true if the status code is 2xx.
 
@@ -263,7 +269,7 @@ Either you can simply pass a single string argument to the function
 
 =end HTML
 
-Either you can also set an optional title or change the default color used for the notification
+or you can also set an optional title or change the default color used for the notification
 
         Slack::WebHook->new( URL => ... )
             ->post_ok( 
@@ -320,18 +326,18 @@ The default notification color is C<green>.
 
 # EXAMPLE: examples/start-end.pl
 
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-start-stop.png" width="400" alt="post_start post_end chart"/></p>
+
+=end HTML
+
 =head1 Customize notifications colors
 
 Using any of the C<post_*> methods: L<post_ok>, L<post_warning>, L<post_error>, L<post_info>, L<post_start> 
 or L<post_end> you can set an alternate color to use for your Slack notification.
 
 # EXAMPLE: examples/colors.pl
-
-=begin HTML
-
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-start-stop.png" width="400" alt="post_start post_end chart"/></p>
-
-=end HTML
 
 =head1 SEE ALSO
 
@@ -342,7 +348,6 @@ Please also consider the following modules:
 =item L<Slack::Notify> - powerful client for Slack webhooks which gives you a full control on the message layout
 
 =back
-
 
 =head1 TODO
 

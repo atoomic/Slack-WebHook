@@ -8,12 +8,12 @@ version 0.001
 
 # SYNOPSIS
 
-Slack::WebHook sample usage
+Sample usage to post slack notifications using Slack::WebHook
 
 ```perl
 #!perl
 
-use Slack::WebHook;
+use Slack::WebHook ();
 
 my $hook = Slack::WebHook->new( 
                url => 'https://hooks.slack.com/services/xxxx/xxxx...' 
@@ -68,9 +68,15 @@ Set of helpers to send slack notification with preset decorations.
 
 # Available functions / methods
 
+## new( \[ url => "https://..." \] )
+
+This is the constructor for [Slack::WebHook](https://metacpan.org/pod/Slack::WebHook). You should provide the `url` for your webhook.
+You should visit the [official Slack documentation page](https://api.slack.com/slack-apps) to create your webhook
+and get your personal URL.
+
 ## post( $message )
 
-The [post](https://metacpan.org/pod/post) method allow you to post a single message without any preset decoration.
+The [post](https://metacpan.org/pod/post) method allow you to post a single message without any preset decorations.
 The return value is the return of [HTTP::Tiny::post\_form](https://metacpan.org/pod/HTTP::Tiny::post_form) which is one `Hash Ref`.
 The `success` field will be true if the status code is 2xx.
 
@@ -89,7 +95,7 @@ Either you can simply pass a single string argument to the function
     Slack::WebHook->new( URL => ... )->post_ok( q[posting a simple "ok" text] );
 ```
 
-Either you can also set an optional title or change the default color used for the notification
+or you can also set an optional title or change the default color used for the notification
 
 ```perl
     Slack::WebHook->new( URL => ... )
