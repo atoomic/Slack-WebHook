@@ -232,7 +232,7 @@ Set of helpers to send slack notification with preset decorations.
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" alt="Slack::WebHook chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" width="400" alt="Slack::WebHook chart"/></p>
 
 =end HTML
 
@@ -259,7 +259,7 @@ Either you can simply pass a single string argument to the function
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-text.png" alt="post_ok chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-text.png" width="400" alt="post_ok chart"/></p>
 
 =end HTML
 
@@ -274,7 +274,7 @@ Either you can also set an optional title or change the default color used for t
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" alt="Slack::WebHook chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" width="400" alt="Slack::WebHook chart"/></p>
 
 =end HTML
 
@@ -287,7 +287,7 @@ Similar to L<post_ok> but the color used to display the message is C<yellow>.
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-warning.png" alt="post_warning chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-warning.png" width="400" alt="post_warning chart"/></p>
 
 =end HTML
 
@@ -301,7 +301,7 @@ Similar to L<post_ok> but the color used to display the message is C<red>.
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-error.png" alt="post_error chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-error.png" width="400" alt="post_error chart"/></p>
 
 =end HTML
 
@@ -329,7 +329,7 @@ or L<post_end> you can set an alternate color to use for your Slack notification
 
 =begin HTML
 
-<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-start-stop.png" alt="post_start post_end chart"/></p>
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-start-stop.png" width="400" alt="post_start post_end chart"/></p>
 
 =end HTML
 
