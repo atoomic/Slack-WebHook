@@ -25,7 +25,7 @@ $hook->post_warning( 'a pretty _orange_ message' );
 $hook->post_error( 'a pretty _red_ message' );
 $hook->post_info( 'a pretty _blue_ message' );
 
-# this is similar to
+# this is similar to the previous syntax
 $hook->post_ok( text => 'a pretty _green_ message' );
 
 # you can also set a title and a body to your message
@@ -86,7 +86,7 @@ You have two ways of calling a `post_*` method.
 Either you can simply pass a single string argument to the function
 
 ```perl
-    Slack::WebHook->new( URL => ... )->post_ok( "My Message" );
+    Slack::WebHook->new( URL => ... )->post_ok( q[posting a simple "ok" text] );
 ```
 
 Either you can also set an optional title or change the default color used for the notification
@@ -95,7 +95,7 @@ Either you can also set an optional title or change the default color used for t
     Slack::WebHook->new( URL => ... )
         ->post_ok( 
             title  => ":camel: Notification Title",
-            text   => "notification message using _markdown_",
+            text   => "your notification message using _markdown_",
             #color => '#aabbcc',
         );
 ```

@@ -12,7 +12,7 @@ $hook->post_warning( 'a pretty _orange_ message' );
 $hook->post_error( 'a pretty _red_ message' );
 $hook->post_info( 'a pretty _blue_ message' );
 
-# this is similar to
+# this is similar to the previous syntax
 $hook->post_ok( text => 'a pretty _green_ message' );
 
 # you can also set a title and a body to your message

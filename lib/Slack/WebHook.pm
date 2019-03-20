@@ -230,7 +230,11 @@ Slack::WebHook
 
 Set of helpers to send slack notification with preset decorations.
 
-=for HTML <p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png"/></p>
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" alt="Slack::WebHook chart"/></p>
+
+=end HTML
 
 =head1 Available functions / methods
 
@@ -251,16 +255,28 @@ You have two ways of calling a C<post_*> method.
 
 Either you can simply pass a single string argument to the function
         
-        Slack::WebHook->new( URL => ... )->post_ok( "My Message" );
+        Slack::WebHook->new( URL => ... )->post_ok( q[posting a simple "ok" text] );
+
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-text.png" alt="post_ok chart"/></p>
+
+=end HTML
 
 Either you can also set an optional title or change the default color used for the notification
 
         Slack::WebHook->new( URL => ... )
             ->post_ok( 
                 title  => ":camel: Notification Title",
-                text   => "notification message using _markdown_",
+                text   => "your notification message using _markdown_",
                 #color => '#aabbcc',
             );
+
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-ok-camel.png" alt="Slack::WebHook chart"/></p>
+
+=end HTML
 
 The return value of the method C<post_*> is one L<HTTP::Tiny> reply. One C<Hash Ref> containing
 the C<success> field which is true on success.
@@ -269,6 +285,12 @@ the C<success> field which is true on success.
 
 Similar to L<post_ok> but the color used to display the message is C<yellow>.
 
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-warning.png" alt="post_warning chart"/></p>
+
+=end HTML
+
 =head2 post_info( $message, [ @list ] )
 
 Similar to L<post_ok> but the color used to display the message is C<blue>.
@@ -276,6 +298,12 @@ Similar to L<post_ok> but the color used to display the message is C<blue>.
 =head2 post_error( $message, [ @list ] )
 
 Similar to L<post_ok> but the color used to display the message is C<red>.
+
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-error.png" alt="post_error chart"/></p>
+
+=end HTML
 
 =head2 post_start( $message, [ @list ] )
 
@@ -298,6 +326,12 @@ Using any of the C<post_*> methods: L<post_ok>, L<post_warning>, L<post_error>, 
 or L<post_end> you can set an alternate color to use for your Slack notification.
 
 # EXAMPLE: examples/colors.pl
+
+=begin HTML
+
+<p><img src="https://raw.githubusercontent.com/atoomic/Slack-WebHook/master/static/images/slack-start-stop.png" alt="post_start post_end chart"/></p>
+
+=end HTML
 
 =head1 SEE ALSO
 
