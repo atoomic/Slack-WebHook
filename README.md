@@ -4,7 +4,7 @@ Slack::WebHook - Slack WebHook with preset layout & colors for sending slack not
 
 # VERSION
 
-version 0.001
+version 0.002
 
 # SYNOPSIS
 
