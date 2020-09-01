@@ -7,56 +7,52 @@ use 5.010;
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Slack WebHook with preset layout & colors for sending slack notifications",
-  "AUTHOR" => "Nicolas R <atoomic\@cpan.org>",
-  "CONFIGURE_REQUIRES" => {
-    "ExtUtils::MakeMaker" => 0
-  },
-  "DISTNAME" => "Slack-WebHook",
-  "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.010",
-  "NAME" => "Slack::WebHook",
-  "PREREQ_PM" => {
-    "HTTP::Tiny" => "0.076",
-    "JSON::MaybeXS" => 0,
-    "Simple::Accessor" => 0
-  },
-  "TEST_REQUIRES" => {
-    "ExtUtils::MakeMaker" => 0,
-    "File::Spec" => 0,
-    "File::Temp" => 0,
-    "Test2::Bundle::Extended" => 0,
-    "Test2::Plugin::NoWarnings" => 0,
-    "Test2::Tools::Explain" => 0,
-    "Test::MockModule" => "0.13",
-    "Test::More" => 0
-  },
-  "VERSION" => "0.003",
-  "test" => {
-    "TESTS" => "t/*.t"
-  }
+    "ABSTRACT"           => "Slack WebHook with preset layout & colors for sending slack notifications",
+    "AUTHOR"             => "Nicolas R <atoomic\@cpan.org>",
+    "CONFIGURE_REQUIRES" => { "ExtUtils::MakeMaker" => 0 },
+    "DISTNAME"           => "Slack-WebHook",
+    "LICENSE"            => "perl",
+    "MIN_PERL_VERSION"   => "5.010",
+    "NAME"               => "Slack::WebHook",
+    "PREREQ_PM"          => {
+        "Encode"           => 0,
+        "HTTP::Tiny"       => "0.076",
+        "JSON::XS"         => 0,
+        "Simple::Accessor" => 0
+    },
+    "TEST_REQUIRES" => {
+        "ExtUtils::MakeMaker"       => 0,
+        "File::Spec"                => 0,
+        "File::Temp"                => 0,
+        "Test2::Bundle::Extended"   => 0,
+        "Test2::Plugin::NoWarnings" => 0,
+        "Test2::Tools::Explain"     => 0,
+        "Test::MockModule"          => "0.13",
+        "Test::More"                => 0
+    },
+    "VERSION" => "0.003",
+    "test"    => { "TESTS" => "t/*.t" }
 );
-
 
 my %FallbackPrereqs = (
-  "ExtUtils::MakeMaker" => 0,
-  "File::Spec" => 0,
-  "File::Temp" => 0,
-  "HTTP::Tiny" => "0.076",
-  "JSON::MaybeXS" => 0,
-  "Simple::Accessor" => 0,
-  "Test2::Bundle::Extended" => 0,
-  "Test2::Plugin::NoWarnings" => 0,
-  "Test2::Tools::Explain" => 0,
-  "Test::MockModule" => "0.13",
-  "Test::More" => 0
+    "Encode"                    => 0,
+    "ExtUtils::MakeMaker"       => 0,
+    "File::Spec"                => 0,
+    "File::Temp"                => 0,
+    "HTTP::Tiny"                => "0.076",
+    "JSON::XS"                  => 0,
+    "Simple::Accessor"          => 0,
+    "Test2::Bundle::Extended"   => 0,
+    "Test2::Plugin::NoWarnings" => 0,
+    "Test2::Tools::Explain"     => 0,
+    "Test::MockModule"          => "0.13",
+    "Test::More"                => 0
 );
 
-
 unless ( eval { ExtUtils::MakeMaker->VERSION(6.63_03) } ) {
-  delete $WriteMakefileArgs{TEST_REQUIRES};
-  delete $WriteMakefileArgs{BUILD_REQUIRES};
-  $WriteMakefileArgs{PREREQ_PM} = \%FallbackPrereqs;
+    delete $WriteMakefileArgs{TEST_REQUIRES};
+    delete $WriteMakefileArgs{BUILD_REQUIRES};
+    $WriteMakefileArgs{PREREQ_PM} = \%FallbackPrereqs;
 }
 
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
