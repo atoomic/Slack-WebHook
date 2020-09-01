@@ -2,6 +2,11 @@ Revision history for Slack-WebHook
 
 {{$NEXT}}
 
+- improve support for UTF-8 messages
+- constructor now accept a customized JSON object
+- boolean option to control 'auto_detect_utf8'
+- depends on JSON-XS instead of JSON::MaybeXS
+
 0.002     2019-03-21 10:07:41-06:00 America/Denver
 
 - bump Test::MockModule requirement version to fix smokers
