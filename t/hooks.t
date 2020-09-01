@@ -94,7 +94,7 @@ http_post_was_called_with(
 {
     note "utf8";
 
-    my $msg = q[The service “xtra” is now operational];
+    my $msg = q[Starts of “école”];
     $hook->post($msg);
     http_post_was_called_with(
         { 'text' => $msg },
