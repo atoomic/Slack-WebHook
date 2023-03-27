@@ -19,11 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - name: perl -V
-        run: perl -V
+      - uses: actions/checkout@v3
+      - run: perl -V
       - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           cpanfile: "cpanfile"
       - name: prove tests
@@ -45,6 +44,8 @@ jobs:
       matrix:
         perl-version:
           [
+            "5.36",
+            "5.34",
             "5.32",
             "5.30",
             "5.28",
@@ -63,71 +64,13 @@ jobs:
       image: perl:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v1
-      - name: perl -V
-        run: perl -V
+      - uses: actions/checkout@v3
+      - run: perl -V
       - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpm@stable
         with:
           sudo: false
           cpanfile: "cpanfile"
       - name: prove tests
         run: prove -vl t/*.t
 
-  macOS:
-    needs: [ubuntu]
-    env:
-      PERL_USE_UNSAFE_INC: 0
-      AUTHOR_TESTING: 1
-      AUTOMATED_TESTING: 1
-      RELEASE_TESTING: 1
-
-    runs-on: macOS-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        perl-version: [latest]
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: perl -V
-        run: perl -V
-      - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
-        with:
-          sudo: false
-          cpanfile: "cpanfile"
-      - name: prove tests
-        run: prove -vl t/*.t
-
-  windows:
-    needs: [ubuntu]
-    env:
-      PERL_USE_UNSAFE_INC: 0
-      AUTHOR_TESTING: 0
-      AUTOMATED_TESTING: 1
-      RELEASE_TESTING: 0
-
-    runs-on: windows-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        perl-version: [latest]
-
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up Perl
-        run: |
-          choco install strawberryperl
-          echo "C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin" >> $GITHUB_PATH
-      - name: perl -V
-        run: perl -V
-      - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
-        with:
-          sudo: false
-          cpanfile: "cpanfile"
-      - name: prove tests
-        run: prove -vl t/*.t
