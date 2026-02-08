@@ -276,6 +276,52 @@ http_post_was_called_with(
     );
 }
 
+{
+    note "post_end with exact minutes (no remaining seconds)";
+
+    $hook->_started_at( time() - 120 );
+    $hook->post_end('exactly two minutes');
+
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => "exactly two minutes\n" . '_run time: 2 minutes 0 second_'
+                }
+            ]
+        },
+        'post_end with exact minutes still shows run time'
+    );
+}
+
+{
+    note "post_end with exact hours (no remaining seconds or minutes)";
+
+    $hook->_started_at( time() - 3600 );
+    $hook->post_end('exactly one hour');
+
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => "exactly one hour\n" . '_run time: 1 hour 0 second_'
+                }
+            ]
+        },
+        'post_end with exact hours still shows run time'
+    );
+}
+
 ## final santiy check
 note "final santiy check";
 is $last_http_post_form, undef, "all called were check"
