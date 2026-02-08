@@ -80,9 +80,10 @@ sub post_start {
 sub post_end {
     my ( $self, @args ) = @_;
 
-    my $delta = int( ( time() - ( $self->_started_at() // 0 ) ) );
+    my $elapsed = int( ( time() - ( $self->_started_at() // 0 ) ) );
 
     my $timestr = '';
+    my $delta   = $elapsed;
 
     my $hours = int( $delta / 3600 );
     if ($hours) {
@@ -105,7 +106,7 @@ sub post_end {
     return $self->_notify(
         {
             color => SLACK_COLOR_OK,
-            $delta > 0 ? ( post_text => "\n_run time: ${timestr}_" ) : ()
+            $elapsed > 0 ? ( post_text => "\n_run time: ${timestr}_" ) : ()
         },
         @args
     );
