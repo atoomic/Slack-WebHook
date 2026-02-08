@@ -133,7 +133,7 @@ http_post_was_called_with(
 {
     note "utf8";
 
-    my $msg = q[Starts of “école”];
+    my $msg = q[Starts of "école"];
     $hook->post($msg);
     http_post_was_called_with(
         { 'text' => $msg },
@@ -184,6 +184,49 @@ http_post_was_called_with(
     like $att->{title}, qr/R\x{e9}sum\x{e9}/, "attachment title has correct e-acute (U+00E9)";
 
     undef $last_http_post_form;
+}
+
+{
+    note "utf8 in post_ok (attachment-level auto-detect)";
+
+    my $msg = q[Début de "tâche"];
+    $hook->post_ok($msg);
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => $msg
+                }
+            ]
+        },
+        'post_ok( msg ) with utf8 characters in attachment'
+    );
+
+    $hook->post_warning(
+        title => "Alerte éducation",
+        text  => "Les élèves sont prêts"
+    );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_WARNING,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => "Les élèves sont prêts",
+                    'title' => "Alerte éducation"
+                }
+            ]
+        },
+        'post_warning( @list ) with utf8 in title and text'
+    );
 }
 
 {

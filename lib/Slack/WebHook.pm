@@ -224,21 +224,32 @@ sub notify_slack {
     return $self->_http_post($data);
 }
 
+sub _auto_detect_utf8_for {
+    my ( $self, $hash ) = @_;
+
+    foreach my $field (qw{text title post_text}) {
+        if ( defined $hash->{$field} ) {
+            if ( !Encode::is_utf8( $hash->{$field} ) ) {
+                Encode::_utf8_on( $hash->{$field} );
+            }
+        }
+    }
+
+    return;
+}
+
 sub _http_post {
     my ( $self, $data ) = @_;
 
     die unless ref $data eq 'HASH';
 
     if ( $self->auto_detect_utf8 ) {
-        my @targets = ($data);
+        $self->_auto_detect_utf8_for($data);
+
+        # also handle attachments (used by post_ok, post_error, etc.)
         if ( ref $data->{attachments} eq 'ARRAY' ) {
-            push @targets, grep { ref $_ eq 'HASH' } @{ $data->{attachments} };
-        }
-        foreach my $target (@targets) {
-            foreach my $field (qw{text title post_text}) {
-                if ( defined $target->{$field} && !Encode::is_utf8( $target->{$field} ) ) {
-                    Encode::_utf8_on( $target->{$field} );
-                }
+            foreach my $att ( @{ $data->{attachments} } ) {
+                $self->_auto_detect_utf8_for($att) if ref $att eq 'HASH';
             }
         }
     }
