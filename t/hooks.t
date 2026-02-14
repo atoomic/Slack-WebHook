@@ -31,6 +31,44 @@ like(
 
 ok !$last_http_post_form, "post_form was not called";
 
+{
+    note "post() with zero args dies";
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );
+    like(
+        dies { $h->post() },
+        qr/post method requires one argument/,
+        "Dies when calling post() with no arguments"
+    );
+}
+
+{
+    note "odd args error message includes caller";
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );
+    like(
+        dies { $h->post_ok( 'a', 'b', 'c' ) },
+        qr/Invalid number of args from/,
+        "Dies on odd number of args"
+    );
+}
+
+{
+    note "post_end() without post_start() warns";
+
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );
+    my @warnings;
+    {
+        local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+        $h->post_end('finished without starting');
+    }
+    like(
+        \@warnings,
+        [ match qr/post_end\(\) called without a prior post_start\(\)/ ],
+        "Warns when post_end is called without post_start"
+    );
+    # elapsed should be 0 (time() - time()), so no run time in output
+    undef $last_http_post_form;
+}
+
 my $URL  = 'http://127.0.0.1';
 my $hook = Slack::WebHook->new( url => $URL );
 
@@ -328,7 +366,6 @@ is $last_http_post_form, undef, "all called were check"
   or diag explain $last_http_post_form;
 
 done_testing;
-exit;
 
 sub http_post_was_called_with {
     my ( $expect, $msg ) = @_;
@@ -350,5 +387,3 @@ sub http_post_was_called_with {
 
     return;
 }
-
-done_testing;

@@ -60,6 +60,9 @@ sub post {
     die "post method only takes one argument: txt or hash ref"
       if scalar @opts > 1;
 
+    die "post method requires one argument: txt or hash ref"
+      unless scalar @opts;
+
     my $txt_or_ref = $opts[0];
     my $data       = ref $txt_or_ref ? $txt_or_ref : { text => $txt_or_ref };
 
@@ -80,7 +83,11 @@ sub post_start {
 sub post_end {
     my ( $self, @args ) = @_;
 
-    my $elapsed = int( ( time() - ( $self->_started_at() // 0 ) ) );
+    unless ( defined $self->_started_at() ) {
+        warn "post_end() called without a prior post_start()";
+    }
+
+    my $elapsed = int( ( time() - ( $self->_started_at() // time() ) ) );
 
     my $timestr = '';
     my $delta   = $elapsed;
@@ -168,7 +175,7 @@ sub _notify {
             my (@caller) = caller(1);
             my $called_by = $caller[3] // 'unknown';
 
-            die q[Invalid number of args from $called_by];
+            die qq[Invalid number of args from $called_by];
         }
 
         @user = @args;
