@@ -31,6 +31,17 @@ like(
 
 ok !$last_http_post_form, "post_form was not called";
 
+{
+    note "odd args error message includes caller";
+    my $URL_err = 'http://127.0.0.1';
+    my $hook_err = Slack::WebHook->new( url => $URL_err );
+    like(
+        dies { $hook_err->post_ok( 'a', 'b', 'c' ) },
+        qr/Invalid number of args from/,
+        "Dies on odd number of args"
+    );
+}
+
 my $URL  = 'http://127.0.0.1';
 my $hook = Slack::WebHook->new( url => $URL );
 
@@ -94,13 +105,56 @@ http_post_was_called_with(
 {
     note "utf8";
 
-    my $msg = q[Starts of “école”];
+    my $msg = q[Starts of "école"];
     $hook->post($msg);
     http_post_was_called_with(
         { 'text' => $msg },
         'post( msg ) with utf8 characters'
     );
 
+}
+
+{
+    note "utf8 in post_ok (attachment-level auto-detect)";
+
+    my $msg = q[Début de "tâche"];
+    $hook->post_ok($msg);
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => $msg
+                }
+            ]
+        },
+        'post_ok( msg ) with utf8 characters in attachment'
+    );
+
+    $hook->post_warning(
+        title => "Alerte éducation",
+        text  => "Les élèves sont prêts"
+    );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_WARNING,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => "Les élèves sont prêts",
+                    'title' => "Alerte éducation"
+                }
+            ]
+        },
+        'post_warning( @list ) with utf8 in title and text'
+    );
 }
 
 {
