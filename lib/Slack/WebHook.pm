@@ -378,7 +378,7 @@ Similar to L<post_ok> but the color used to display the message is C<red>.
 
 =head2 post_start( $message, [ @list ] )
 
-Similar to L<post_ok> but in addition initialize a timer which is used by L<post_stop>.
+Similar to L<post_ok> but in addition initialize a timer which is used by L<post_end>.
 The default color used to display the message is C<blue>.
 
 =head2 post_end( $message, [ @list ] )
