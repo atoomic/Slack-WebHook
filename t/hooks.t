@@ -20,6 +20,7 @@ $mock_http->redefine(
         my ( $self, @args ) = @_;
         note "calling HTTP::Tiny post_form mocked method";
         $last_http_post_form = \@args;
+        return { success => 1, status => 200, reason => 'OK' };
     }
 );
 
@@ -357,6 +358,39 @@ http_post_was_called_with(
             ]
         },
         'post_end with exact hours still shows run time'
+    );
+}
+
+{
+    note "_http_post warns on HTTP failure";
+
+    $mock_http->redefine(
+        post_form => sub {
+            my ( $self, @args ) = @_;
+            $last_http_post_form = \@args;
+            return { success => '', status => 404, reason => 'Not Found' };
+        }
+    );
+
+    my @warnings;
+    {
+        local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+        $hook->post('trigger http failure');
+    }
+    like(
+        \@warnings,
+        [ match qr/Slack webhook POST failed: HTTP 404 Not Found/ ],
+        "Warns when HTTP response has success=false"
+    );
+    undef $last_http_post_form;
+
+    # restore success mock for remaining tests
+    $mock_http->redefine(
+        post_form => sub {
+            my ( $self, @args ) = @_;
+            $last_http_post_form = \@args;
+            return { success => 1, status => 200, reason => 'OK' };
+        }
     );
 }
 
