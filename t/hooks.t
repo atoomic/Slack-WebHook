@@ -329,7 +329,7 @@ http_post_was_called_with(
                         'text',
                         'title'
                     ],
-                    'text' => "exactly two minutes\n" . '_run time: 2 minutes 0 second_'
+                    'text' => "exactly two minutes\n" . '_run time: 2 minutes_'
                 }
             ]
         },
@@ -352,7 +352,7 @@ http_post_was_called_with(
                         'text',
                         'title'
                     ],
-                    'text' => "exactly one hour\n" . '_run time: 1 hour 0 second_'
+                    'text' => "exactly one hour\n" . '_run time: 1 hour_'
                 }
             ]
         },
