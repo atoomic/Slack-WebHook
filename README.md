@@ -158,7 +158,7 @@ Similar to [post\_ok](https://metacpan.org/pod/post_ok) but the color used to di
 
 ## post\_start( $message, \[ @list \] )
 
-Similar to [post\_ok](https://metacpan.org/pod/post_ok) but in addition initialize a timer which is used by [post\_stop](https://metacpan.org/pod/post_stop).
+Similar to [post\_ok](https://metacpan.org/pod/post_ok) but in addition initialize a timer which is used by [post\_end](https://metacpan.org/pod/post_end).
 The default color used to display the message is `blue`.
 
 ## post\_end( $message, \[ @list \] )
