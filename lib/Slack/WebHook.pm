@@ -230,10 +230,14 @@ sub _http_post {
     die unless ref $data eq 'HASH';
 
     if ( $self->auto_detect_utf8 ) {
-        foreach my $field (qw{text title post_text}) {
-            if ( defined $data->{$field} ) {
-                if ( !Encode::is_utf8( $data->{$field} ) ) {
-                    Encode::_utf8_on( $data->{$field} );
+        my @targets = ($data);
+        if ( ref $data->{attachments} eq 'ARRAY' ) {
+            push @targets, grep { ref $_ eq 'HASH' } @{ $data->{attachments} };
+        }
+        foreach my $target (@targets) {
+            foreach my $field (qw{text title post_text}) {
+                if ( defined $target->{$field} && !Encode::is_utf8( $target->{$field} ) ) {
+                    Encode::_utf8_on( $target->{$field} );
                 }
             }
         }
