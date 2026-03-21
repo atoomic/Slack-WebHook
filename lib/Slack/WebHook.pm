@@ -239,10 +239,16 @@ sub _http_post {
         }
     }
 
-    return $self->_http->post_form(
+    my $response = $self->_http->post_form(
         $self->url,
         { payload => $self->json->encode($data) },
     );
+
+    if ( $response && !$response->{success} ) {
+        warn "Slack webhook POST failed: HTTP $response->{status} $response->{reason}\n";
+    }
+
+    return $response;
 
 }
 
