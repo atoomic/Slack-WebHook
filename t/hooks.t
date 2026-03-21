@@ -142,6 +142,50 @@ http_post_was_called_with(
 }
 
 {
+    note "utf8 detection in attachment-based posts (post_ok, etc.)";
+
+    # Build a byte string containing valid UTF-8 bytes for "ecole" with accent
+    # \xc3\xa9 = UTF-8 encoding of U+00E9 (e-acute)
+    my $utf8_text  = "D\xc3\xa9ploiement de l'\xc3\xa9cole";
+    my $utf8_title = "R\xc3\xa9sum\xc3\xa9";
+
+    ok !Encode::is_utf8($utf8_text),  "text starts without utf8 flag";
+    ok !Encode::is_utf8($utf8_title), "title starts without utf8 flag";
+
+    $hook->post_ok(
+        title => $utf8_title,
+        text  => $utf8_text,
+    );
+
+    # Verify the raw payload string - check that the JSON does NOT contain
+    # double-encoded UTF-8 (Latin-1 interpretation of the bytes).
+    # Without the fix, \xc3\xa9 is treated as two Latin-1 chars (U+00C3, U+00A9)
+    # which JSON::XS encodes as "\xc3\x83\xc2\xa9" (double-encoded) or as
+    # escaped sequences. With the fix, _utf8_on makes JSON see U+00E9 (correct).
+    is $last_http_post_form, [
+        $URL,
+        { payload => D() }
+      ],
+      "post_form was called for utf8 attachment test"
+      or die;
+
+    my $payload = $last_http_post_form->[1]->{payload};
+
+    # The payload should contain the properly encoded e-acute character,
+    # not the double-encoded version. Check via JSON decode that the
+    # text field roundtrips to the correct Unicode character.
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $att = $content->{attachments}[0];
+
+    # If auto_detect_utf8 worked, the text should contain U+00E9 (e-acute)
+    # If it didn't work, text contains U+00C3 U+00A9 (double-encoded garbage)
+    like $att->{text}, qr/\x{e9}cole/, "attachment text has correct e-acute (U+00E9), not double-encoded";
+    like $att->{title}, qr/R\x{e9}sum\x{e9}/, "attachment title has correct e-acute (U+00E9)";
+
+    undef $last_http_post_form;
+}
+
+{
     note "post_warning";
 
     $hook->post_warning('posting a simple "warning" text');
