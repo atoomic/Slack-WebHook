@@ -105,7 +105,7 @@ sub post_end {
         $timestr .= "$minutes minute" . ( $minutes > 1 ? 's' : '' );
     }
     my $seconds = $delta;
-    {
+    if ($seconds) {
         $timestr .= " " if length $timestr;
         $timestr .= "$seconds second" . ( $seconds > 1 ? 's' : '' );
     }
