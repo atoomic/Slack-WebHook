@@ -9,6 +9,7 @@ package Slack::WebHook;
 
 use strict;
 use warnings;
+use utf8;
 
 # ABSTRACT: Slack WebHook with preset layout & colors for sending slack notifications
 
@@ -230,7 +231,7 @@ sub _auto_detect_utf8_for {
     foreach my $field (qw{text title post_text}) {
         if ( defined $hash->{$field} ) {
             if ( !Encode::is_utf8( $hash->{$field} ) ) {
-                Encode::_utf8_on( $hash->{$field} );
+                $hash->{$field} = Encode::decode_utf8( $hash->{$field} );
             }
         }
     }
