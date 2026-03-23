@@ -241,7 +241,7 @@ sub _auto_detect_utf8_for {
 sub _http_post {
     my ( $self, $data ) = @_;
 
-    die unless ref $data eq 'HASH';
+    die "Invalid data: expected a hash reference" unless ref $data eq 'HASH';
 
     if ( $self->auto_detect_utf8 ) {
         $self->_auto_detect_utf8_for($data);

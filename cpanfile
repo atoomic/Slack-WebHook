@@ -14,5 +14,4 @@ on 'test' => sub {
     requires "Test2::Plugin::NoWarnings" => 0;
     requires "Test2::Tools::Explain"     => 0;
     requires "Test::MockModule"          => "0.13";
-    requires "Test::More"                => 0;
 };
