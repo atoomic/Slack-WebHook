@@ -481,9 +481,172 @@ http_post_was_called_with(
     );
 }
 
-## final santiy check
-note "final santiy check";
-is $last_http_post_form, undef, "all called were check"
+{
+    note "post_info";
+
+    $hook->post_info('posting a simple "info" text');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'posting a simple "info" text'
+                }
+            ]
+        },
+        'post_info( txt )'
+    );
+
+    $hook->post_info(
+        title => ':info: Info Title',
+        text  => 'this is the _info_ message'
+    );
+
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => 'this is the _info_ message',
+                    'title' => ':info: Info Title'
+                }
+            ]
+        },
+        'post_info( @list )'
+    );
+}
+
+{
+    note "post() with too many args dies";
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );
+    like(
+        dies { $h->post( 'a', 'b' ) },
+        qr/post method only takes one argument/,
+        "Dies when calling post() with two arguments"
+    );
+}
+
+{
+    note "notify_slack with single string arg";
+
+    $hook->notify_slack('direct string message');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'direct string message'
+                }
+            ]
+        },
+        'notify_slack( single_string )'
+    );
+}
+
+{
+    note "notify_slack with content alias for text";
+
+    $hook->notify_slack( content => 'via content alias' );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'via content alias'
+                }
+            ]
+        },
+        'notify_slack( content => ... ) uses content as text alias'
+    );
+}
+
+{
+    note "notify_slack with body alias for text";
+
+    $hook->notify_slack( body => 'via body alias' );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'via body alias'
+                }
+            ]
+        },
+        'notify_slack( body => ... ) uses body as text alias'
+    );
+}
+
+{
+    note "notify_slack with zero args dies";
+
+    like(
+        dies { $hook->notify_slack() },
+        qr/No arguments to notify_slack/,
+        "Dies on zero args to notify_slack"
+    );
+}
+
+{
+    note "notify_slack with odd number of args dies";
+
+    like(
+        dies { $hook->notify_slack( 'a', 'b', 'c' ) },
+        qr/Invalid number of arguments/,
+        "Dies on odd number of args to notify_slack"
+    );
+}
+
+{
+    note "auto_detect_utf8 disabled";
+
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1', auto_detect_utf8 => 0 );
+    ok !$h->auto_detect_utf8, "auto_detect_utf8 is off";
+
+    # Post a byte string with valid UTF-8 bytes
+    my $byte_text = "D\xc3\xa9j\xc3\xa0 vu";
+    ok !Encode::is_utf8($byte_text), "text starts without utf8 flag";
+
+    $h->post_ok( text => $byte_text );
+
+    # With auto_detect_utf8 off, the JSON encoder gets the raw bytes,
+    # which JSON::XS with utf8(0) will encode as Latin-1 codepoints
+    ok defined $last_http_post_form, "post_form was called with auto_detect_utf8 off";
+
+    my $payload = $last_http_post_form->[1]->{payload};
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $att     = $content->{attachments}[0];
+
+    # Without utf8 detection, the bytes are treated as Latin-1,
+    # so \xc3 becomes U+00C3 and \xa9 becomes U+00A9 (double-encoded)
+    like $att->{text}, qr/\x{c3}\x{a9}/, "text has raw bytes (not decoded) when auto_detect_utf8 is off";
+
+    undef $last_http_post_form;
+}
+
+## final sanity check
+note "final sanity check";
+is $last_http_post_form, undef, "all calls were checked"
   or diag explain $last_http_post_form;
 
 done_testing;

@@ -40,11 +40,7 @@ sub _build_url {
 }
 
 sub _build__http {
-    return HTTP::Tiny->new(
-        default_headers => {
-            'Content-Type' => 'application/json; charset=UTF-8',
-        }
-    );
+    return HTTP::Tiny->new();
 }
 
 sub _build_json {
@@ -338,7 +334,7 @@ The C<success> field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods C<post_*> which will use colors
 and a preset style to display your notification.
-The C<post> method allow you to post custom messages by bypassing any preset layour.
+The C<post> method allow you to post custom messages by bypassing any preset layout.
 
 =head2 post_ok( $message, [ @list ] )
 
