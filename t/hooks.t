@@ -53,6 +53,16 @@ ok !$last_http_post_form, "post_form was not called";
 }
 
 {
+    note "post() with non-hashref reference dies with clear message";
+    my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );
+    like(
+        dies { $h->post( [1, 2, 3] ) },
+        qr/Invalid data: expected a hash reference/,
+        "Dies with descriptive message when post() receives an array ref"
+    );
+}
+
+{
     note "post_end() without post_start() warns";
 
     my $h = Slack::WebHook->new( url => 'http://127.0.0.1' );

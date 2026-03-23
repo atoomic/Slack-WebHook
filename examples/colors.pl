@@ -1,3 +1,4 @@
+use Slack::WebHook ();
 
 my $webhook = Slack::WebHook->new( url => '...' );
 
