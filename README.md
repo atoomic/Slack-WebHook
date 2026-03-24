@@ -198,6 +198,10 @@ $webhook->post_ok( { text => 'Hello World! in black', color => '#000' );
 $webhook->post_warning( { title => 'My Title', text => 'Hello World! in red', color => '#cc0000' );
 ```
 
+# AI POLICY
+
+This project uses AI-assisted workflows. See [AI_POLICY.md](AI_POLICY.md) for full details on how AI tools are used and the safeguards in place.
+
 # SEE ALSO
 
 Please also consider the following modules:
