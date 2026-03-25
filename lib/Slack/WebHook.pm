@@ -27,7 +27,6 @@ use Simple::Accessor qw{
 
 use HTTP::Tiny;
 use JSON::XS ();
-use Encode   ();
 
 use constant SLACK_COLOR_START   => '#2b3bd9';    # blue
 use constant SLACK_COLOR_OK      => '#2eb886';    # green
@@ -228,10 +227,8 @@ sub _auto_detect_utf8_for {
     my ( $self, $hash ) = @_;
 
     foreach my $field (qw{text title post_text}) {
-        if ( defined $hash->{$field} ) {
-            if ( !Encode::is_utf8( $hash->{$field} ) ) {
-                Encode::_utf8_on( $hash->{$field} );
-            }
+        if ( defined $hash->{$field} && !utf8::is_utf8( $hash->{$field} ) ) {
+            utf8::decode( $hash->{$field} );
         }
     }
 

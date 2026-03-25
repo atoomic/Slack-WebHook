@@ -160,8 +160,8 @@ http_post_was_called_with(
     my $utf8_text  = "D\xc3\xa9ploiement de l'\xc3\xa9cole";
     my $utf8_title = "R\xc3\xa9sum\xc3\xa9";
 
-    ok !Encode::is_utf8($utf8_text),  "text starts without utf8 flag";
-    ok !Encode::is_utf8($utf8_title), "title starts without utf8 flag";
+    ok !utf8::is_utf8($utf8_text),  "text starts without utf8 flag";
+    ok !utf8::is_utf8($utf8_title), "title starts without utf8 flag";
 
     $hook->post_ok(
         title => $utf8_title,

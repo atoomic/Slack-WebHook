@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 
-requires "Encode"           => 0;
 requires "HTTP::Tiny"       => "0.076";
 requires "JSON::XS"         => 0;
 requires "Simple::Accessor" => 0;
