@@ -126,9 +126,6 @@ sub post_ok {
         { color => SLACK_COLOR_OK },
         @args
     );
-
-    # could also work
-    #return $self->notify_slack( @args );
 }
 
 sub post_warning {
@@ -347,7 +344,7 @@ You have two ways of calling a C<post_*> method.
 
 Either you can simply pass a single string argument to the function
 
-        Slack::WebHook->new( URL => ... )->post_ok( q[posting a simple "ok" text] );
+        Slack::WebHook->new( url => ... )->post_ok( q[posting a simple "ok" text] );
 
 =begin HTML
 
@@ -357,12 +354,14 @@ Either you can simply pass a single string argument to the function
 
 or you can also set an optional title or change the default color used for the notification
 
-        Slack::WebHook->new( URL => ... )
+        Slack::WebHook->new( url => ... )
             ->post_ok(
                 title  => ":camel: Notification Title",
                 text   => "your notification message using _markdown_",
                 #color => '#aabbcc',
             );
+
+C<body> and C<content> are accepted as aliases for C<text>.
 
 =begin HTML
 

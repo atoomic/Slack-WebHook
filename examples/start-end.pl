@@ -1,3 +1,4 @@
+use Slack::WebHook ();
 
 my $hook = Slack::WebHook->new( url => 'https://...' );
 
