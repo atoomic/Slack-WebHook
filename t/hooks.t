@@ -436,6 +436,125 @@ http_post_was_called_with(
 }
 
 {
+    note "post_info";
+
+    $hook->post_info('a blue info message');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'a blue info message'
+                }
+            ]
+        },
+        'post_info( txt )'
+    );
+
+    $hook->post_info(
+        title => ':info: Info Title',
+        text  => 'this is the _info_ message'
+    );
+
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => 'this is the _info_ message',
+                    'title' => ':info: Info Title'
+                }
+            ]
+        },
+        'post_info( @list )'
+    );
+}
+
+{
+    note "content alias for text";
+
+    $hook->post_ok(
+        title   => 'Alias Test',
+        content => 'message via content alias'
+    );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => 'message via content alias',
+                    'title' => 'Alias Test'
+                }
+            ]
+        },
+        'post_ok with content alias for text'
+    );
+}
+
+{
+    note "auto_detect_utf8 disabled";
+
+    my $hook_no_utf8 = Slack::WebHook->new( url => $URL, auto_detect_utf8 => 0 );
+
+    # A byte string with valid UTF-8 bytes — without auto-detect,
+    # the SvUTF8 flag stays off and JSON::XS treats bytes as Latin-1
+    my $bytes = "caf\xc3\xa9";
+    ok !Encode::is_utf8($bytes), "byte string has no utf8 flag before post";
+
+    $hook_no_utf8->post_ok($bytes);
+
+    is $last_http_post_form, [
+        $URL,
+        { payload => D() }
+      ],
+      "post_form was called for auto_detect_utf8=0 test"
+      or die;
+
+    my $payload = $last_http_post_form->[1]->{payload};
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $att = $content->{attachments}[0];
+
+    # With auto_detect_utf8 off, the bytes are NOT interpreted as UTF-8.
+    # JSON::XS with utf8(0) treats non-UTF8 bytes as Latin-1, so \xc3\xa9
+    # becomes U+00C3 U+00A9 (two characters) instead of U+00E9 (one).
+    unlike $att->{text}, qr/\x{e9}$/, "auto_detect_utf8=0 does NOT fix utf8 flag";
+    undef $last_http_post_form;
+}
+
+{
+    note "notify_slack with single string argument";
+
+    $hook->notify_slack('direct single string');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'direct single string'
+                }
+            ]
+        },
+        'notify_slack( single_string )'
+    );
+}
+
+{
     note "post_end with exact hours (no remaining seconds or minutes)";
 
     $hook->_started_at( time() - 3600 );
