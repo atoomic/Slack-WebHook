@@ -16,9 +16,9 @@ our $last_http_post_form;
 
 my $mock_http = Test::MockModule->new('HTTP::Tiny');
 $mock_http->redefine(
-    post_form => sub {
+    post => sub {
         my ( $self, @args ) = @_;
-        note "calling HTTP::Tiny post_form mocked method";
+        note "calling HTTP::Tiny post mocked method";
         $last_http_post_form = \@args;
         return { success => 1, status => 200, reason => 'OK' };
     }
@@ -175,12 +175,12 @@ http_post_was_called_with(
     # escaped sequences. With the fix, _utf8_on makes JSON see U+00E9 (correct).
     is $last_http_post_form, [
         $URL,
-        { payload => D() }
+        { content => D() }
       ],
-      "post_form was called for utf8 attachment test"
+      "post was called for utf8 attachment test"
       or die;
 
-    my $payload = $last_http_post_form->[1]->{payload};
+    my $payload = $last_http_post_form->[1]->{content};
 
     # The payload should contain the properly encoded e-acute character,
     # not the double-encoded version. Check via JSON decode that the
@@ -462,7 +462,7 @@ http_post_was_called_with(
     note "_http_post warns on HTTP failure";
 
     $mock_http->redefine(
-        post_form => sub {
+        post => sub {
             my ( $self, @args ) = @_;
             $last_http_post_form = \@args;
             return { success => '', status => 404, reason => 'Not Found' };
@@ -483,7 +483,7 @@ http_post_was_called_with(
 
     # restore success mock for remaining tests
     $mock_http->redefine(
-        post_form => sub {
+        post => sub {
             my ( $self, @args ) = @_;
             $last_http_post_form = \@args;
             return { success => 1, status => 200, reason => 'OK' };
@@ -505,14 +505,14 @@ sub http_post_was_called_with {
 
     is $last_http_post_form, [
         $URL,
-        { payload => D() }
+        { content => D() }
       ],
       "last_http_post_form called"
       or die;
 
-    my $content = eval { JSON::XS->new->utf8(0)->decode( $last_http_post_form->[1]->{payload} ) };
+    my $content = eval { JSON::XS->new->utf8(0)->decode( $last_http_post_form->[1]->{content} ) };
     diag "Error: ", $@ if $@;
-    is( $content, $expect, $msg ) or diag explain $content, explain $last_http_post_form->[1]->{payload};
+    is( $content, $expect, $msg ) or diag explain $content, explain $last_http_post_form->[1]->{content};
 
     undef $last_http_post_form;    # reset;
 

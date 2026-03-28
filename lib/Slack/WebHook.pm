@@ -254,9 +254,9 @@ sub _http_post {
         }
     }
 
-    my $response = $self->_http->post_form(
+    my $response = $self->_http->post(
         $self->url,
-        { payload => $self->json->encode($data) },
+        { content => $self->json->encode($data) },
     );
 
     if ( $response && !$response->{success} ) {
@@ -333,7 +333,7 @@ and get your personal URL.
 =head2 post( $message )
 
 The L<post> method allow you to post a single message without any preset decorations.
-The return value is the return of L<HTTP::Tiny::post_form> which is one C<Hash Ref>.
+The return value is the return of L<HTTP::Tiny::post> which is one C<Hash Ref>.
 The C<success> field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods C<post_*> which will use colors
