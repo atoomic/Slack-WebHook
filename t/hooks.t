@@ -185,7 +185,7 @@ http_post_was_called_with(
     # The payload should contain the properly encoded e-acute character,
     # not the double-encoded version. Check via JSON decode that the
     # text field roundtrips to the correct Unicode character.
-    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $content = JSON::XS->new->utf8(1)->decode($payload);
     my $att = $content->{attachments}[0];
 
     # If auto_detect_utf8 worked, the text should contain U+00E9 (e-acute)
@@ -510,7 +510,7 @@ sub http_post_was_called_with {
       "last_http_post_form called"
       or die;
 
-    my $content = eval { JSON::XS->new->utf8(0)->decode( $last_http_post_form->[1]->{content} ) };
+    my $content = eval { JSON::XS->new->utf8(1)->decode( $last_http_post_form->[1]->{content} ) };
     diag "Error: ", $@ if $@;
     is( $content, $expect, $msg ) or diag explain $content, explain $last_http_post_form->[1]->{content};
 
