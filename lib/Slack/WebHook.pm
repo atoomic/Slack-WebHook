@@ -248,9 +248,14 @@ sub _http_post {
         }
     }
 
+    my $json_payload = $self->json->encode($data);
+
+    # json->utf8(0) produces a Unicode string; HTTP::Tiny needs bytes
+    utf8::encode($json_payload) if utf8::is_utf8($json_payload);
+
     my $response = $self->_http->post(
         $self->url,
-        { content => $self->json->encode($data) },
+        { content => $json_payload },
     );
 
     if ( $response && !$response->{success} ) {
