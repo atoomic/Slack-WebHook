@@ -338,7 +338,17 @@ The C<success> field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods C<post_*> which will use colors
 and a preset style to display your notification.
-The C<post> method allow you to post custom messages by bypassing any preset layour.
+The C<post> method allow you to post custom messages by bypassing any preset layout
+— it accepts either a plain string (sent as C<text>) or a hash ref that is
+serialized to JSON and posted as-is. This makes it the right escape hatch for
+any payload Slack accepts, including L<Block Kit|https://api.slack.com/block-kit>:
+
+# EXAMPLE: examples/blocks.pl
+
+Note: the colored C<post_*> helpers below build messages using Slack's legacy
+L<attachments|https://api.slack.com/reference/messaging/attachments> format,
+which Slack still supports but no longer evolves. For richer layouts
+(sections, dividers, buttons, fields, ...) prefer Block Kit through C<post()>.
 
 =head2 post_ok( $message, [ @list ] )
 
