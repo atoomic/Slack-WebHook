@@ -26,7 +26,7 @@ use Simple::Accessor qw{
 };
 
 use HTTP::Tiny;
-use JSON::XS ();
+use JSON::MaybeXS ();
 use Encode   ();
 
 use constant SLACK_COLOR_START   => '#2b3bd9';    # blue
@@ -48,7 +48,7 @@ sub _build__http {
 }
 
 sub _build_json {
-    return JSON::XS->new->utf8(0)->pretty(1);
+    return JSON::MaybeXS->new->utf8(0)->pretty(1);
 }
 
 # by default on
