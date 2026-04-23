@@ -511,19 +511,19 @@ http_post_was_called_with(
     # A byte string with valid UTF-8 bytes — without auto-detect,
     # the SvUTF8 flag stays off and JSON::XS treats bytes as Latin-1
     my $bytes = "caf\xc3\xa9";
-    ok !Encode::is_utf8($bytes), "byte string has no utf8 flag before post";
+    ok !utf8::is_utf8($bytes), "byte string has no utf8 flag before post";
 
     $hook_no_utf8->post_ok($bytes);
 
     is $last_http_post_form, [
         $URL,
-        { payload => D() }
+        { content => D() }
       ],
-      "post_form was called for auto_detect_utf8=0 test"
+      "post was called for auto_detect_utf8=0 test"
       or die;
 
-    my $payload = $last_http_post_form->[1]->{payload};
-    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $payload = $last_http_post_form->[1]->{content};
+    my $content = JSON::XS->new->utf8(1)->decode($payload);
     my $att = $content->{attachments}[0];
 
     # With auto_detect_utf8 off, the bytes are NOT interpreted as UTF-8.
