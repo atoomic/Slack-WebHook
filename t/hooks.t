@@ -10,15 +10,15 @@ use Test2::Plugin::NoWarnings;
 use Test::MockModule ();
 
 use Slack::WebHook ();
-use JSON::XS       ();
+use JSON::MaybeXS  ();
 
 our $last_http_post_form;
 
 my $mock_http = Test::MockModule->new('HTTP::Tiny');
 $mock_http->redefine(
-    post_form => sub {
+    post => sub {
         my ( $self, @args ) = @_;
-        note "calling HTTP::Tiny post_form mocked method";
+        note "calling HTTP::Tiny post mocked method";
         $last_http_post_form = \@args;
         return { success => 1, status => 200, reason => 'OK' };
     }
@@ -160,8 +160,8 @@ http_post_was_called_with(
     my $utf8_text  = "D\xc3\xa9ploiement de l'\xc3\xa9cole";
     my $utf8_title = "R\xc3\xa9sum\xc3\xa9";
 
-    ok !Encode::is_utf8($utf8_text),  "text starts without utf8 flag";
-    ok !Encode::is_utf8($utf8_title), "title starts without utf8 flag";
+    ok !utf8::is_utf8($utf8_text),  "text starts without utf8 flag";
+    ok !utf8::is_utf8($utf8_title), "title starts without utf8 flag";
 
     $hook->post_ok(
         title => $utf8_title,
@@ -175,17 +175,17 @@ http_post_was_called_with(
     # escaped sequences. With the fix, _utf8_on makes JSON see U+00E9 (correct).
     is $last_http_post_form, [
         $URL,
-        { payload => D() }
+        { content => D() }
       ],
-      "post_form was called for utf8 attachment test"
+      "post was called for utf8 attachment test"
       or die;
 
-    my $payload = $last_http_post_form->[1]->{payload};
+    my $payload = $last_http_post_form->[1]->{content};
 
     # The payload should contain the properly encoded e-acute character,
     # not the double-encoded version. Check via JSON decode that the
     # text field roundtrips to the correct Unicode character.
-    my $content = JSON::XS->new->utf8(0)->decode($payload);
+    my $content = JSON::MaybeXS->new->utf8(1)->decode($payload);
     my $att = $content->{attachments}[0];
 
     # If auto_detect_utf8 worked, the text should contain U+00E9 (e-acute)
@@ -459,13 +459,132 @@ http_post_was_called_with(
 }
 
 {
-    note "_http_post warns on HTTP failure";
+    note "post_info";
+
+    $hook->post_info('a blue info message');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'a blue info message'
+                }
+            ]
+        },
+        'post_info( txt )'
+    );
+
+    $hook->post_info(
+        title => ':info: Info Title',
+        text  => 'this is the _info_ message'
+    );
+
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_INFO,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => 'this is the _info_ message',
+                    'title' => ':info: Info Title'
+                }
+            ]
+        },
+        'post_info( @list )'
+    );
+}
+
+{
+    note "content alias for text";
+
+    $hook->post_ok(
+        title   => 'Alias Test',
+        content => 'message via content alias'
+    );
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text'  => 'message via content alias',
+                    'title' => 'Alias Test'
+                }
+            ]
+        },
+        'post_ok with content alias for text'
+    );
+}
+
+{
+    note "auto_detect_utf8 disabled";
+
+    my $hook_no_utf8 = Slack::WebHook->new( url => $URL, auto_detect_utf8 => 0 );
+
+    # A byte string with valid UTF-8 bytes — without auto-detect,
+    # the SvUTF8 flag stays off and JSON encoder treats bytes as Latin-1
+    my $bytes = "caf\xc3\xa9";
+    ok !utf8::is_utf8($bytes), "byte string has no utf8 flag before post";
+
+    $hook_no_utf8->post_ok($bytes);
+
+    is $last_http_post_form, [
+        $URL,
+        { content => D() }
+      ],
+      "post was called for auto_detect_utf8=0 test"
+      or die;
+
+    my $payload = $last_http_post_form->[1]->{content};
+    my $content = JSON::MaybeXS->new->utf8(1)->decode($payload);
+    my $att = $content->{attachments}[0];
+
+    # With auto_detect_utf8 off, the bytes are NOT interpreted as UTF-8.
+    # The JSON encoder with utf8(0) treats non-UTF8 bytes as Latin-1, so \xc3\xa9
+    # becomes U+00C3 U+00A9 (two characters) instead of U+00E9 (one).
+    unlike $att->{text}, qr/\x{e9}$/, "auto_detect_utf8=0 does NOT fix utf8 flag";
+    undef $last_http_post_form;
+}
+
+{
+    note "notify_slack with single string argument";
+
+    $hook->notify_slack('direct single string');
+    http_post_was_called_with(
+        {
+            'attachments' => [
+                {
+                    'color'     => Slack::WebHook::SLACK_COLOR_OK,
+                    'mrkdwn_in' => [
+                        'text',
+                        'title'
+                    ],
+                    'text' => 'direct single string'
+                }
+            ]
+        },
+        'notify_slack( single_string )'
+    );
+}
+
+{
+    note "_http_post warns on HTTP failure with response body";
 
     $mock_http->redefine(
-        post_form => sub {
+        post => sub {
             my ( $self, @args ) = @_;
             $last_http_post_form = \@args;
-            return { success => '', status => 404, reason => 'Not Found' };
+            return { success => '', status => 404, reason => 'Not Found', content => 'channel_not_found' };
         }
     );
 
@@ -476,14 +595,14 @@ http_post_was_called_with(
     }
     like(
         \@warnings,
-        [ match qr/Slack webhook POST failed: HTTP 404 Not Found/ ],
-        "Warns when HTTP response has success=false"
+        [ match qr/Slack webhook POST failed: HTTP 404 Not Found \(channel_not_found\)/ ],
+        "Warns with HTTP status and response body"
     );
     undef $last_http_post_form;
 
     # restore success mock for remaining tests
     $mock_http->redefine(
-        post_form => sub {
+        post => sub {
             my ( $self, @args ) = @_;
             $last_http_post_form = \@args;
             return { success => 1, status => 200, reason => 'OK' };
@@ -505,14 +624,14 @@ sub http_post_was_called_with {
 
     is $last_http_post_form, [
         $URL,
-        { payload => D() }
+        { content => D() }
       ],
       "last_http_post_form called"
       or die;
 
-    my $content = eval { JSON::XS->new->utf8(0)->decode( $last_http_post_form->[1]->{payload} ) };
+    my $content = eval { JSON::MaybeXS->new->utf8(1)->decode( $last_http_post_form->[1]->{content} ) };
     diag "Error: ", $@ if $@;
-    is( $content, $expect, $msg ) or diag explain $content, explain $last_http_post_form->[1]->{payload};
+    is( $content, $expect, $msg ) or diag explain $content, explain $last_http_post_form->[1]->{content};
 
     undef $last_http_post_form;    # reset;
 

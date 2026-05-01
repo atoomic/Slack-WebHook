@@ -1,9 +1,8 @@
 use strict;
 use warnings;
 
-requires "Encode"           => 0;
 requires "HTTP::Tiny"       => "0.076";
-requires "JSON::XS"         => 0;
+requires "JSON::MaybeXS"    => 0;
 requires "Simple::Accessor" => 0;
 
 on 'test' => sub {

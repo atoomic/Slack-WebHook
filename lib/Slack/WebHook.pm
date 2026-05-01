@@ -26,8 +26,7 @@ use Simple::Accessor qw{
 };
 
 use HTTP::Tiny;
-use JSON::XS ();
-use Encode   ();
+use JSON::MaybeXS ();
 
 use constant SLACK_COLOR_START   => '#2b3bd9';    # blue
 use constant SLACK_COLOR_OK      => '#2eb886';    # green
@@ -48,7 +47,7 @@ sub _build__http {
 }
 
 sub _build_json {
-    return JSON::XS->new->utf8(0)->pretty(1);
+    return JSON::MaybeXS->new->utf8(0)->pretty(1);
 }
 
 # by default on
@@ -126,9 +125,6 @@ sub post_ok {
         { color => SLACK_COLOR_OK },
         @args
     );
-
-    # could also work
-    #return $self->notify_slack( @args );
 }
 
 sub post_warning {
@@ -228,10 +224,8 @@ sub _auto_detect_utf8_for {
     my ( $self, $hash ) = @_;
 
     foreach my $field (qw{text title post_text}) {
-        if ( defined $hash->{$field} ) {
-            if ( !Encode::is_utf8( $hash->{$field} ) ) {
-                Encode::_utf8_on( $hash->{$field} );
-            }
+        if ( defined $hash->{$field} && !utf8::is_utf8( $hash->{$field} ) ) {
+            utf8::decode( $hash->{$field} );
         }
     }
 
@@ -254,13 +248,21 @@ sub _http_post {
         }
     }
 
-    my $response = $self->_http->post_form(
+    my $json_payload = $self->json->encode($data);
+
+    # json->utf8(0) produces a Unicode string; HTTP::Tiny needs bytes
+    utf8::encode($json_payload) if utf8::is_utf8($json_payload);
+
+    my $response = $self->_http->post(
         $self->url,
-        { payload => $self->json->encode($data) },
+        { content => $json_payload },
     );
 
     if ( $response && !$response->{success} ) {
-        warn "Slack webhook POST failed: HTTP $response->{status} $response->{reason}\n";
+        my $detail = $response->{content} // '';
+        $detail =~ s/\s+\z//;
+        warn "Slack webhook POST failed: HTTP $response->{status} $response->{reason}"
+            . ( length $detail ? " ($detail)" : '' ) . "\n";
     }
 
     return $response;
@@ -302,7 +304,7 @@ The backend C<url> for your Slack webhook.
 This is optional and allow you to provide an alternate JSON object
 to format the output sent to post queries.
 
-One JSON::MaybeXS with the flavor of your choice.
+One L<JSON::MaybeXS> with the flavor of your choice.
 By default C<utf8 = 0, pretty = 1>.
 
 Example:
@@ -333,7 +335,7 @@ and get your personal URL.
 =head2 post( $message )
 
 The L<post> method allow you to post a single message without any preset decorations.
-The return value is the return of L<HTTP::Tiny::post_form> which is one C<Hash Ref>.
+The return value is the return of L<HTTP::Tiny::post> which is one C<Hash Ref>.
 The C<success> field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods C<post_*> which will use colors
@@ -347,7 +349,7 @@ You have two ways of calling a C<post_*> method.
 
 Either you can simply pass a single string argument to the function
 
-        Slack::WebHook->new( URL => ... )->post_ok( q[posting a simple "ok" text] );
+        Slack::WebHook->new( url => ... )->post_ok( q[posting a simple "ok" text] );
 
 =begin HTML
 
@@ -357,12 +359,14 @@ Either you can simply pass a single string argument to the function
 
 or you can also set an optional title or change the default color used for the notification
 
-        Slack::WebHook->new( URL => ... )
+        Slack::WebHook->new( url => ... )
             ->post_ok(
                 title  => ":camel: Notification Title",
                 text   => "your notification message using _markdown_",
                 #color => '#aabbcc',
             );
+
+C<body> and C<content> are accepted as aliases for C<text>.
 
 =begin HTML
 

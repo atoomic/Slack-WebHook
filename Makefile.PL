@@ -17,9 +17,8 @@ my %WriteMakefileArgs = (
   "MIN_PERL_VERSION" => "5.010",
   "NAME" => "Slack::WebHook",
   "PREREQ_PM" => {
-    "Encode" => 0,
     "HTTP::Tiny" => "0.076",
-    "JSON::XS" => 0,
+    "JSON::MaybeXS" => 0,
     "Simple::Accessor" => 0
   },
   "TEST_REQUIRES" => {
@@ -40,12 +39,11 @@ my %WriteMakefileArgs = (
 
 
 my %FallbackPrereqs = (
-  "Encode" => 0,
   "ExtUtils::MakeMaker" => 0,
   "File::Spec" => 0,
   "File::Temp" => 0,
   "HTTP::Tiny" => "0.076",
-  "JSON::XS" => 0,
+  "JSON::MaybeXS" => 0,
   "Simple::Accessor" => 0,
   "Test2::Bundle::Extended" => 0,
   "Test2::Plugin::NoWarnings" => 0,
