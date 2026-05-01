@@ -64,7 +64,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: perl -V
       - name: install dependencies
-        uses: perl-actions/install-with-cpm@v1
+        uses: perl-actions/install-with-cpanm@v1
         with:
           sudo: false
           cpanfile: "cpanfile"
