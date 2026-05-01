@@ -111,13 +111,13 @@ and get your personal URL.
 
 ## post( $message )
 
-The [post](https://metacpan.org/pod/post) method allow you to post a single message without any preset decorations.
+The [post](https://metacpan.org/pod/post) method allows you to post a single message without any preset decorations.
 The return value is the return of [HTTP::Tiny::post\_form](https://metacpan.org/pod/HTTP%3A%3ATiny%3A%3Apost_form) which is one `Hash Ref`.
 The `success` field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods `post_*` which will use colors
 and a preset style to display your notification.
-The `post` method allow you to post custom messages by bypassing any preset layour.
+The `post` method allows you to post custom messages by bypassing any preset layout.
 
 ## post\_ok( $message, \[ @list \] )
 
@@ -192,10 +192,10 @@ or [post\_end](https://metacpan.org/pod/post_end) you can set an alternate color
 my $webhook = Slack::WebHook->new( url => '...' );
 
 # message without a title using a custom color
-$webhook->post_ok( { text => 'Hello World! in black', color => '#000' );
+$webhook->post_ok( text => 'Hello World! in black', color => '#000' );
 
 # message with a title using a custom color
-$webhook->post_warning( { title => 'My Title', text => 'Hello World! in red', color => '#cc0000' );
+$webhook->post_warning( title => 'My Title', text => 'Hello World! in red', color => '#cc0000' );
 ```
 
 # AI POLICY

@@ -332,13 +332,13 @@ and get your personal URL.
 
 =head2 post( $message )
 
-The L<post> method allow you to post a single message without any preset decorations.
+The L<post> method allows you to post a single message without any preset decorations.
 The return value is the return of L<HTTP::Tiny::post_form> which is one C<Hash Ref>.
 The C<success> field will be true if the status code is 2xx.
 
 You should prefer using any of the other methods C<post_*> which will use colors
 and a preset style to display your notification.
-The C<post> method allow you to post custom messages by bypassing any preset layour.
+The C<post> method allows you to post custom messages by bypassing any preset layout.
 
 =head2 post_ok( $message, [ @list ] )
 
