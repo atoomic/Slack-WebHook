@@ -21,6 +21,7 @@ use Simple::Accessor qw{
   url
   json
   auto_detect_utf8
+  format
   _http
   _started_at
 };
@@ -53,6 +54,18 @@ sub _build_json {
 
 # by default on
 sub _build_auto_detect_utf8 { 1 }
+
+# output format: 'attachment' (legacy default) or 'blocks' (Block Kit)
+sub _build_format { 'attachment' }
+
+# emoji prefixes used in Block Kit mode to indicate severity
+my %BLOCK_EMOJI = (
+    SLACK_COLOR_OK()      => "\x{2705}",    # white check mark
+    SLACK_COLOR_INFO()    => "\x{2139}\x{FE0F}",    # info
+    SLACK_COLOR_WARNING() => "\x{26A0}\x{FE0F}",    # warning
+    SLACK_COLOR_ERROR()   => "\x{274C}",    # cross mark
+    SLACK_COLOR_START()   => "\x{1F680}",   # rocket
+);
 
 sub post {
     my ( $self, @opts ) = @_;
@@ -210,16 +223,34 @@ sub notify_slack {
     $color //= SLACK_COLOR_OK;
     $text  //= '';
 
-    my $data = {
-        attachments => [
+    my $data;
+
+    if ( ( $self->format // 'attachment' ) eq 'blocks' ) {
+        my $emoji  = $BLOCK_EMOJI{$color} // '';
+        my $prefix = length $emoji ? "$emoji " : '';
+        my $body   = defined $title ? "*${title}*\n${prefix}${text}" : "${prefix}${text}";
+
+        my @blocks = (
             {
-                defined $title ? ( title => $title ) : (),
-                color     => $color,
-                text      => $text,
-                mrkdwn_in => [qw/text title/],
+                type => 'section',
+                text => { type => 'mrkdwn', text => $body },
             }
-        ]
-    };
+        );
+
+        $data = { blocks => \@blocks };
+    }
+    else {
+        $data = {
+            attachments => [
+                {
+                    defined $title ? ( title => $title ) : (),
+                    color     => $color,
+                    text      => $text,
+                    mrkdwn_in => [qw/text title/],
+                }
+            ]
+        };
+    }
 
     return $self->_http_post($data);
 }
@@ -312,6 +343,24 @@ Example:
         json => $json,
         url => ...
     );
+
+=head2 format [default='attachment'] [optional]
+
+Controls the output format for colored C<post_*> methods.
+
+=over
+
+=item C<'attachment'> — (default) uses Slack's legacy attachment format with colored sidebars.
+
+=item C<'blocks'> — uses Slack Block Kit with emoji prefixes to indicate severity.
+
+=back
+
+    my $hook = Slack::WebHook->new( url => '...', format => 'blocks' );
+    $hook->post_ok("deployed v2.1");   # renders: check-mark deployed v2.1
+
+Block Kit is Slack's recommended format for new development. The C<post()> method
+is unaffected by this setting — it always sends raw payloads directly.
 
 =head2 auto_detect_utf8 [default=true] [optional]
 
