@@ -491,6 +491,73 @@ http_post_was_called_with(
     );
 }
 
+{
+    note "extra options pass through to top-level data hash";
+
+    $hook->post_ok(
+        text      => 'threaded reply',
+        thread_ts => '1234567890.123456',
+    );
+
+    is $last_http_post_form, [
+        $URL,
+        { payload => D() }
+      ],
+      "post_form was called for passthrough test"
+      or die;
+
+    my $payload = $last_http_post_form->[1]->{payload};
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+
+    is $content->{thread_ts}, '1234567890.123456',
+        'thread_ts passed through to top-level payload';
+
+    ok ref $content->{attachments} eq 'ARRAY',
+        'attachments still present alongside thread_ts';
+    is $content->{attachments}[0]{text}, 'threaded reply',
+        'attachment text is correct';
+
+    undef $last_http_post_form;
+}
+
+{
+    note "multiple extra options pass through";
+
+    $hook->post_warning(
+        title        => 'Deploy Warning',
+        text         => 'slow rollout',
+        thread_ts    => '9876543210.654321',
+        unfurl_links => 0,
+    );
+
+    my $payload = $last_http_post_form->[1]->{payload};
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+
+    is $content->{thread_ts}, '9876543210.654321',
+        'thread_ts passed through in post_warning';
+    is $content->{unfurl_links}, 0,
+        'unfurl_links passed through in post_warning';
+    is $content->{attachments}[0]{color}, Slack::WebHook::SLACK_COLOR_WARNING,
+        'color correctly applied to attachment, not passed through';
+
+    undef $last_http_post_form;
+}
+
+{
+    note "single-arg post_ok does not inject extra keys";
+
+    $hook->post_ok('simple message');
+
+    my $payload = $last_http_post_form->[1]->{payload};
+    my $content = JSON::XS->new->utf8(0)->decode($payload);
+
+    my @top_keys = sort keys %$content;
+    is \@top_keys, ['attachments'],
+        'no extra keys in top-level data for single-arg call';
+
+    undef $last_http_post_form;
+}
+
 ## final santiy check
 note "final santiy check";
 is $last_http_post_form, undef, "all called were check"

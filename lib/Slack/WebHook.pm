@@ -188,6 +188,7 @@ sub notify_slack {
     my ( $self, @args ) = @_;
 
     my ( $color, $title, $text );
+    my %opts;
 
     my $nb_args = scalar @args;
     die q[No arguments to notify_slack] unless $nb_args;
@@ -197,7 +198,7 @@ sub notify_slack {
     }
     else {
         die q[Invalid number of arguments] if $nb_args % 2;
-        my %opts = @args;
+        %opts = @args;
 
         $color = $opts{color};
         $title = $opts{title};                                         # can be undefined
@@ -210,6 +211,10 @@ sub notify_slack {
     $color //= SLACK_COLOR_OK;
     $text  //= '';
 
+    # Keys consumed by notify_slack itself — everything else passes through
+    # to the top-level Slack payload (e.g. thread_ts, unfurl_links, mrkdwn).
+    my %_reserved = map { $_ => 1 } qw(color title text body content post_text);
+
     my $data = {
         attachments => [
             {
@@ -220,6 +225,13 @@ sub notify_slack {
             }
         ]
     };
+
+    # Pass through extra options to top-level data hash
+    if ( $nb_args > 1 ) {
+        for my $key ( keys %opts ) {
+            $data->{$key} = $opts{$key} unless $_reserved{$key};
+        }
+    }
 
     return $self->_http_post($data);
 }
@@ -372,6 +384,21 @@ or you can also set an optional title or change the default color used for the n
 
 The return value of the method C<post_*> is one L<HTTP::Tiny> reply. One C<Hash Ref> containing
 the C<success> field which is true on success.
+
+=head2 Extra Slack parameters
+
+Any key-value options not recognized by the C<post_*> methods
+(C<color>, C<title>, C<text>, C<body>, C<content>) are passed through
+to the top-level Slack payload. This lets you use Slack features like
+threading without falling back to L</post>:
+
+    $hook->post_ok(
+        text      => 'deploy finished',
+        thread_ts => $parent_ts,
+    );
+
+Common pass-through parameters: C<thread_ts>, C<unfurl_links>,
+C<unfurl_media>, C<mrkdwn>.
 
 =head2 post_warning( $message, [ @list ] )
 
